@@ -1,12 +1,18 @@
+const path = require("path");
+
 const express = require("express");
 const bodyParser = require("body-parser");
+
+const env = require("dotenv").config();
+const mongoose = require("mongoose");
 
 const feedRoutes = require("./routes/feed");
 
 const app = express();
 
-// application/json parser
-app.use(bodyParser.json());
+// parser configuration
+app.use(bodyParser.json()); //application/json parser
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // add http headers
 app.use((req, res, next) => {
@@ -19,8 +25,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// add feed Routes
+// add Routes
 app.use("/feed", feedRoutes);
 
-// start server
-app.listen(8000);
+// error handing
+app.use((error, req, res, next) => {
+  const status = error.statusCode || 500;
+  const message = error.message;
+  res.status(status).json({ message: message });
+});
+
+// connect mongoDB server
+mongoose
+  .connect(
+    `mongodb+srv://${process.env.DB_MONGO_USER}:${process.env.DB_MONGO_PASSWORD}@cluster0.9uqk2.mongodb.net/${process.env.DB_MONGO_DATABASE}`
+  )
+  .then(() => app.listen(8000)) // start app
+  .catch((error) => console.log(error));
