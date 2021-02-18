@@ -20,10 +20,10 @@ exports.getPosts = (req, res) => {
 exports.postPost = (req, res) => {
   // validation block
   const validationErrors = validationResult(req);
-  if (!validationResult.isEmpty()) {
+  if (!validationErrors.isEmpty()) {
     return res
       .status(422)
-      .json({ message: "Validation failed", errors: validationResult.array() });
+      .json({ message: "Validation failed", errors: validationErrors.array() });
   }
 
   // post requests
