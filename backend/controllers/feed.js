@@ -11,11 +11,25 @@ const clearImage = (filePathName) => {
 };
 
 exports.getPosts = (req, res, next) => {
+  // pagination param
+  const currentPage = req.query.page || 1; // query get param
+  const perPage = 2;
+  let totalItems;
+
   Post.find()
+    .countDocuments()
+    .then((count) => {
+      totalItems = count;
+
+      return Post.find()
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })
     .then((posts) => {
       res.status(200).json({
         message: "Fetched posts success !!",
         posts: posts,
+        totalItems: totalItems,
       });
     })
     .catch((error) => {
