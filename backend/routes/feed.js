@@ -19,7 +19,7 @@ router.post(
 // GET /feed/post/:postId
 router.get("/post/:postId", feedControllers.getPost);
 
-// PUT /post/:postId - update post route
+// PUT /feed/post/:postId - update post route
 router.put(
   "/post/:postId",
   [
@@ -28,5 +28,8 @@ router.put(
   ],
   feedControllers.updatePost
 );
+
+// DELETE /feed/post/:postId - delete post route
+router.delete("/post/:postId", feedControllers.deletePost);
 
 module.exports = router;
