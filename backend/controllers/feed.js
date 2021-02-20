@@ -1,6 +1,14 @@
+const fs = require("fs");
+const path = require("path");
+
 const { validationResult } = require("express-validator/check");
 
 const Post = require("../models/post");
+
+const clearImage = (filePathName) => {
+  const filePath = path.join(__dirname, "..", filePathName);
+  fs.unlink(filePath, (error) => console.log(error)); // delete image file
+};
 
 exports.getPosts = (req, res, next) => {
   Post.find()
@@ -121,6 +129,12 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+
+      // delete old image file
+      if (imageUrl !== post.imageUrl) {
+        clearImage(post.imageUrl);
+      }
+
       post.title = updateTitle;
       post.content = updateContent;
       post.imageUrl = imageUrl;
@@ -128,7 +142,7 @@ exports.updatePost = (req, res, next) => {
       return post.save();
     })
     .then((savedPost) => {
-      res.statusCode(200).json({
+      res.status(200).json({
         message: "Post updated!",
         post: savedPost,
       });
