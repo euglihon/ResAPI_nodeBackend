@@ -19,7 +19,14 @@ router.post(
 // GET /feed/post/:postId
 router.get("/post/:postId", feedControllers.getPost);
 
-// PUT /post/:postId - delete post
-router.put("/post/:postId");
+// PUT /post/:postId - update post route
+router.put(
+  "/post/:postId",
+  [
+    body("title").trim().isLength({ min: 5 }),
+    body("content").trim().isLength({ min: 5 }),
+  ],
+  feedControllers.updatePost
+);
 
 module.exports = router;

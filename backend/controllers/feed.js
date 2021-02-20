@@ -88,3 +88,55 @@ exports.getPost = (req, res, next) => {
       next(error);
     });
 };
+
+exports.updatePost = (req, res, next) => {
+  // validation block
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    const error = new Error("Validation failed !!");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  // request get param
+  const postId = req.params.postId;
+  // request params
+  const updateTitle = req.body.title;
+  const updateContent = req.body.content;
+  let imageUrl = req.body.image;
+
+  if (req.file) {
+    imageUrl = req.file.path;
+  }
+  if (!imageUrl) {
+    const error = new Error("No image file picked");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        const error = new Error("Could not find post !");
+        error.statusCode = 404;
+        throw error;
+      }
+      post.title = updateTitle;
+      post.content = updateContent;
+      post.imageUrl = imageUrl;
+
+      return post.save();
+    })
+    .then((savedPost) => {
+      res.statusCode(200).json({
+        message: "Post updated!",
+        post: savedPost,
+      });
+    })
+    .catch((error) => {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      next(error);
+    });
+};
