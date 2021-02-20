@@ -19,4 +19,7 @@ router.post(
 // GET /feed/post/:postId
 router.get("/post/:postId", feedControllers.getPost);
 
+// PUT /post/:postId - delete post
+router.put("/post/:postId");
+
 module.exports = router;

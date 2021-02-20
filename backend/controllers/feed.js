@@ -16,21 +16,6 @@ exports.getPosts = (req, res, next) => {
       }
       next(error);
     });
-
-  res.status(200).json({
-    posts: [
-      {
-        _id: "1",
-        title: "First title",
-        content: "First content",
-        imageURL: "images/test.png",
-        creator: {
-          name: "TestUSer",
-        },
-        createdAt: new Date(),
-      },
-    ],
-  });
 };
 
 exports.postPost = (req, res, next) => {
@@ -44,7 +29,7 @@ exports.postPost = (req, res, next) => {
 
   // request multer image file
   if (!req.file) {
-    const error = new Error("No image provided");
+    const error = new Error("No image provided !!");
     error.statusCode = 422;
     throw error;
   }
@@ -57,7 +42,7 @@ exports.postPost = (req, res, next) => {
   //create new post
   const post = new Post({
     title: title,
-    imageURL: imageUrl,
+    imageUrl: imageUrl,
     content: content,
     creator: {
       name: "TestUser",

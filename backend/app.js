@@ -11,25 +11,24 @@ const feedRoutes = require("./routes/feed");
 
 const app = express();
 
-// upload file storage
+// upload file storage and filter
 const fileStorage = multer.diskStorage({
-  destination: (req, res, callback) => {
-    callback(null, "images"); // images - folder name
+  destination: (req, file, cb) => {
+    cb(null, "images");
   },
-  filename: (req, res, callback) => {
-    callback(null, new Date().toISOString() + file.originalname);
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + "-" + file.originalname);
   },
 });
-// upload file filter
-const fileFilter = (req, res, callback) => {
+const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
     file.mimetype === "image/jpeg"
   ) {
-    callback(null, true);
+    cb(null, true);
   } else {
-    callback(null, false);
+    cb(null, false);
   }
 };
 
@@ -37,7 +36,7 @@ const fileFilter = (req, res, callback) => {
 app.use(bodyParser.json()); //application/json parser
 app.use(
   // upload file
-  multer({ storage: fileStorage, fileFilter: fileStorage }).single("image")
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
 app.use("/images", express.static(path.join(__dirname, "images"))); // image parser
 
@@ -67,5 +66,5 @@ mongoose
   .connect(
     `mongodb+srv://${process.env.DB_MONGO_USER}:${process.env.DB_MONGO_PASSWORD}@cluster0.9uqk2.mongodb.net/${process.env.DB_MONGO_DATABASE}`
   )
-  .then(() => app.listen(8000)) // start app
+  .then(() => app.listen(8080)) // start app
   .catch((error) => console.log(error));
