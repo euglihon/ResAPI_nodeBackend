@@ -6,6 +6,7 @@ const { validationResult } = require("express-validator/check");
 const Post = require("../models/post");
 
 const clearImage = (filePathName) => {
+  // delete old images
   const filePath = path.join(__dirname, "..", filePathName);
   fs.unlink(filePath, (error) => console.log(error)); // delete image file
 };

@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 
 const feedRoutes = require("./routes/feed");
+const userRoutes = require("./routes/user");
 
 const app = express();
 
@@ -53,12 +54,14 @@ app.use((req, res, next) => {
 
 // add Routes
 app.use("/feed", feedRoutes);
+app.use(userRoutes);
 
 // error handing
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 // connect mongoDB server
