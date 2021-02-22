@@ -54,7 +54,7 @@ app.use((req, res, next) => {
 
 // add Routes
 app.use("/feed", feedRoutes);
-app.use(userRoutes);
+app.use("/auth", userRoutes);
 
 // error handing
 app.use((error, req, res, next) => {
