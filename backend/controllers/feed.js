@@ -4,6 +4,7 @@ const path = require("path");
 const { validationResult } = require("express-validator/check");
 
 const Post = require("../models/post");
+const User = require("../models/user");
 
 const clearImage = (filePathName) => {
   // delete old images
@@ -62,21 +63,30 @@ exports.postPost = (req, res, next) => {
   const content = req.body.content;
   const imageUrl = req.file.path;
 
+  let creator;
+
   //create new post
   const post = new Post({
     title: title,
     imageUrl: imageUrl,
     content: content,
-    creator: {
-      name: "TestUser",
-    },
+    creator: req.userId,
   });
   post
     .save()
-    .then((resultPost) => {
+    .then((result) => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      creator = user;
+      user.posts.push(post);
+      return user.save();
+    })
+    .then((result) => {
       res.status(201).json({
         message: "Post created !",
-        post: resultPost,
+        post: post,
+        creator: { _id: creator._id, name: creator.name },
       });
     })
     .catch((error) => {
@@ -145,6 +155,13 @@ exports.updatePost = (req, res, next) => {
         throw error;
       }
 
+      // user not authorized
+      if (post.creator.toString() !== req.userId) {
+        const Error = new Error("Not authorized !");
+        error.statusCode = 403;
+        throw error;
+      }
+
       // delete old image file
       if (imageUrl !== post.imageUrl) {
         clearImage(post.imageUrl);
@@ -181,14 +198,29 @@ exports.deletePost = (req, res, next) => {
         throw error;
       }
 
+      // user not authorized
+      if (post.creator.toString() !== req.userId) {
+        const Error = new Error("Not authorized !");
+        error.statusCode = 403;
+        throw error;
+      }
+
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
+    })
+    .then((result) => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      user.posts.pull(postId);
+      return user.save();
     })
     .then((result) => {
       res.status(200).json({
         message: "Post deleted !",
       });
     })
+
     .catch((error) => {
       if (!error.statusCode) {
         error.statusCode = 500;
