@@ -69,5 +69,11 @@ mongoose
   .connect(
     `mongodb+srv://${process.env.DB_MONGO_USER}:${process.env.DB_MONGO_PASSWORD}@cluster0.9uqk2.mongodb.net/${process.env.DB_MONGO_DATABASE}`
   )
-  .then(() => app.listen(8080)) // start app
+  .then(() => {
+    const server = app.listen(8080);
+    const socketIo = require("./socket").init(server);
+    socketIo.on("connection", (socket) => {
+      console.log("client connected");
+    });
+  })
   .catch((error) => console.log(error));
